@@ -15,10 +15,10 @@
         </div>
       </div>
       <div class="means text-center">
-        another word, pelmen, hacahpuri
+        {{ means.join(', ') }}
       </div>
       <div class="answer-container">
-        <q-btn  push class="answer" v-for="word in data">{{ word }}</q-btn>
+        <q-btn  push class="answer" :color="getBtnColor(key)" v-for="( word, key) in answersArray" @click="answer(key)">{{ word }}</q-btn>
 <!--        <div class="first-answer text-center answer">Word 1</div>
         <div class="second-answer text-center answer">Word 2</div>
         <div class="third-answer text-center answer">Word 3</div>
@@ -30,26 +30,63 @@
 </template>
 
 <script setup lang='ts'>
-import {ref} from "vue";
+import {ref, watch} from "vue";
 import {createStyledLettersArray} from "@/utils/stringUtils";
-
+import {useQuasar} from "quasar";
+import {styledLetter} from "@/types/types";
 const props = defineProps({
-  paperNumber: {
+  word: {
+    type: String,
+    required: true
+  },
+  answersArray: {
+    type: Array,
+    required: true
+  },
+  means: {
+    type: Array,
+    default: []
+  },
+  truthAnswer: {
     type: Number,
     required: true
   }
 })
-const word = 'highlanderb'
+const emit = defineEmits(['answer'])
 const useCaseForLetters = false
+const redButton = ref(5)
+const greenButton = ref(5)
+function answer(button: number): void{
+  if(button ===  <number>props.truthAnswer){
+    greenButton.value = button
+  }else{
+    redButton.value = button
+    greenButton.value = <number>props.truthAnswer
+  }
+  emit('answer', {
+    isTruthAnswer: button ===  <number>props.truthAnswer,
+    truthAnswer: props.answersArray?.[props.truthAnswer],
+    realAnswer: props.answersArray?.[button]
+  })
+}
+function getBtnColor(btn: number): string|undefined{
+  if(btn === greenButton.value){
+    return 'positive'
+  }
+  if(btn === redButton.value){
+    return 'negative'
+  }
+  return undefined
+}
 
-
-
-const styledLetters: styledLetter[] = createStyledLettersArray(word)
+const styledLetters = ref(createStyledLettersArray(props.word))
 const data = ref(['Word 1', 'Word12312', 'wOR', 'Word1243235235'])
-import {useQuasar} from "quasar";
-import {styledLetter} from "@/types/types";
-
-const $q = useQuasar()
+watch(props, ()=>{
+  console.log('Trgger word')
+  styledLetters.value = createStyledLettersArray(props.word)
+  redButton.value = 5
+  greenButton.value = 5
+})
 </script>
 
 <style scoped lang='scss'>
@@ -76,6 +113,7 @@ $letter-size: 5em;
 .answer{
   font-size: 1em;
   margin: 10px;
+  transition: 0.7s !important;
 }
 @media screen  and (max-width: 1024px){
   .answer-container {
@@ -88,7 +126,7 @@ $letter-size: 5em;
       "fourth-answer";
   }
   .answer{
-    width: 100%;
+
   }
 }
 @media screen  and (min-width: 1023px){

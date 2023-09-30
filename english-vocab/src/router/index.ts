@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import PapersList from '@/layouts/PapersList.vue'
-import Paper from "@/components/Paper.vue";
-import StartPage from "@/layouts/StartPage.vue";
+import PapersList from '@/pages/PapersList.vue'
+import PaperPage from "@/pages/PaperPage.vue";
+import StartPage from "@/pages/StartPage.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,7 +19,7 @@ const router = createRouter({
     {
       path: '/paper/:paperNumber',
       name: 'paper',
-      component: Paper,
+      component: PaperPage,
       props: true
     },
   ]

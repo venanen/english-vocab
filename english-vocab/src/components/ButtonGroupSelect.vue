@@ -1,8 +1,15 @@
 <template>
-  <q-btn v-for="button in props.countButtons" :color="getBtnColor(button)" @click="onClick(button)" class="button">{{ button }}</q-btn>
+  <div class="btn-select">
+    <q-btn v-for="(index, button) in props.countButtons" :color="getBtnColor(button)"
+           @click="onClick(button)"
+           :disable="stepper && button > currentStep"
+           :class="{'button': true, currentStep: stepper && currentStep===button}">{{ button+1 }}</q-btn>
+  </div>
 </template>
 
 <script setup lang='ts'>
+  import {defineStore} from "pinia";
+
   const props = defineProps({
     countButtons: {
       type: Number,
@@ -20,12 +27,23 @@
       type: Set,
       default: new Set([])
     },
+    stepper: {
+      type: Boolean,
+      default: false
+    },
+    currentStep: {
+      type: Number,
+      default: -1
+    }
   })
   const emit = defineEmits(['click'])
   function onClick(button: number): void{
     emit('click', button)
   }
   function getBtnColor(btn: number): string|undefined{
+    if(props.currentStep === btn){
+      return 'primary'
+    }
     if(props.greenButton.has(btn)){
       return 'positive'
     }
@@ -42,5 +60,11 @@
 <style scoped lang='scss'>
 .button{
   margin: 5px;
+}
+.btn-select{
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  flex-wrap: wrap;
 }
 </style>
